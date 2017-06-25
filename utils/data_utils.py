@@ -4,7 +4,7 @@ import os
 import pickle
 
 ANOMALY_THRESH = 10
-Y_len = 50
+Y_len = 100
 
 class Instance(object):
 	def __init__(self, ticker, date, ret, close, vol,
@@ -23,7 +23,7 @@ class Instance(object):
 		self.d_after.loc[:,['open', 'high', 'low', 'close']] /= self.close
 		self.anomalous = False
 		self.label = []
-		for l in list(range(50)):
+		for l in list(range(Y_len)):
 			try:
 				r = self.d_after.iloc[l, 3]
 				if r > ANOMALY_THRESH:

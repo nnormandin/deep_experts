@@ -3,7 +3,9 @@ import keras.backend as K
 from keras.models import Sequential
 from keras.layers import Dense #, BatchNormalization #, Dropout
 from keras.layers import LSTM
+from sklearn.metrics import mean_squared_error
 import pickle
+import math
 
 if 'instances' not in dir():
 	instances = pickle.load(open('./instances24JUN.p', 'rb'))
@@ -37,10 +39,22 @@ for i in [1, 5, 10, 20, 30, 40, 50, 75, 100]:
 	              loss='mean_squared_error')
 	
 	# fit
-	mod_fitted = mod.fit(X, y, validation_split = 0.4, shuffle =	True,
+	mod_fitted = mod.fit(X, y, validation_split=0.4, shuffle=True,
 							epochs=30)
 	
 	validation_history.append(mod_fitted.history['val_loss'])
 	
 	# reset graph
 	K.clear_session()
+
+y_means = [x.mean() for x in y_history]
+min_val = [min(x) for x in validation_history]
+
+rmse = [math.sqrt(x) for x in min_val]
+coef_var = [x / y for x,y in zip(rmse, y_means)]
+
+coef_var_dif = []
+
+for x,y,z in zip(y_means, y_history, coef_var):
+	coef_var_dif.append(((math.sqrt(mean_squared_error(y, [x]*len(y)))/x)-z))
+
