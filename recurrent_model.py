@@ -10,7 +10,7 @@ import os
 if 'instances.p' not in os.listdir():
 	stock_data = '/home/nick/R/projects/pigasus2/data/data_by_ticker/'
 	instances = util.make_instances(directory = stock_data, save=False,
-					 min_loss = -0.7, save_before = 250, save_after = 150)
+					 min_loss = -0.07, save_before = 250, save_after = 150)
 
 # pull into memory
 if 'instances' not in dir():
