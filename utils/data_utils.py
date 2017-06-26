@@ -92,6 +92,33 @@ def make_data(instances, tplus = 10, min_len = 50, max_len = 50,
 	
 	return X_out, y
 	
+def make_data_aux(instances, tplus = 10, min_len = 50, max_len = 50,
+			  exclude_anom = True):
+		
+	# remove positive return anomalies
+	if exclude_anom:
+		instances = [x for x in instances if x.anomalous == False]
+	
+	# select based on n_before and n_after
+	instances = [x for x in instances if x.n_before >= min_len]
+	X = [x.d_before.tail(max_len) for x in instances]
+	
+	x_close = [x.close for x in instances]
+	x_ret = [x.ret for x in instances]
+
+	
+	y = np.asarray([x.label[tplus - 1] for x in instances])
+	y = (y - 1) * 100
+	
+	N = len(X)
+	M = X[0].shape[1]
+	
+	#X_2 = np.reshape(X_2, (N, 1))
+	X_2 = np.column_stack((x_close, x_ret))
+	X_1 = pd.DataFrame.as_matrix(pd.concat(X)).reshape(N, max_len, M)
+	
+	return X_1, X_2, y
+
 def clip_anomalies(y, iqr_multiple = 5):
 	q3 = np.percentile(y, 75)
 	iqr = q3 - np.percentile(y, 25)
