@@ -115,7 +115,7 @@ def make_data_aux(instances, tplus = 10, min_len = 50, max_len = 50,
 	
 	#X_2 = np.reshape(X_2, (N, 1))
 	X_2 = np.column_stack((x_close, x_ret))
-	X_1 = pd.DataFrame.as_matrix(pd.concat(X)).reshape(N, max_len, M)
+	X_1 = pd.DataFrame.as_matrix(pd.concat(X)).reshape(N, M, max_len)
 	
 	return X_1, X_2, y
 
