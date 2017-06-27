@@ -19,7 +19,7 @@ X, y = util.make_data(instances, tplus = 20, min_len=100, max_len=100)
 y = util.clip_anomalies(y, iqr_multiple=10)
 
 validation_history = []
-mod_depths = [1, 2, 3]
+mod_depths = [3]
 layer_widths = [64, 128, 256, 512]
 max_epochs = 50
 stopping_patience = 7
@@ -40,7 +40,7 @@ for j in layer_widths:
 		if i == 2:
 			mod.add(GRU(j))
 		if i == 3:
-			mod.add(GRU(j))
+			mod.add(GRU(j, return_sequences = True))
 			mod.add(GRU(j))
 
 		mod.add(Dense(1))
