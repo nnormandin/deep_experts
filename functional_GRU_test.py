@@ -42,12 +42,12 @@ x = concatenate([gru_out, aux_input])
 x = Dropout(rate = 0.9)(x)
 x = BatchNormalization()(x)
 x = Dense(256, activation = 'elu')(x)
-x = BatchNormalization()(x)
 x = Dropout(rate = 0.9)(x)
-x = Dense(64, activation = 'elu')(x)
-
+x = BatchNormalization()(x)
+x = Dense(256, activation = 'elu')(x)
 # drop gru_pred back into vector?
 x = concatenate([gru_pred, x])
+x = BatchNormalization()(x)
 
 
 # main output for loss calculation #2
