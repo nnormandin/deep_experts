@@ -2,6 +2,7 @@ from keras.models import Model
 import keras.backend as K
 from keras.layers import Input, Dense, BatchNormalization, Dropout
 from keras.layers import GRU, concatenate
+from keras.layers.noise import AlphaDropout
 from keras.optimizers import Adam
 import pickle
 import utils.data_utils as util
@@ -39,28 +40,24 @@ aux_input = Input(shape = X2.shape[1:], name = 'aux_in')
 x = concatenate([gru_out, aux_input])
 
 # fully connected FFN
-x = Dropout(rate = 0.9)(x)
-x = BatchNormalization()(x)
-x = Dense(256, activation = 'elu')(x)
-x = BatchNormalization()(x)
-x = Dropout(rate = 0.9)(x)
-x = Dense(64, activation = 'elu')(x)
-
-# drop gru_pred back into vector?
-x = concatenate([gru_pred, x])
-
+#x = Dropout(rate = 0.7)(x)
+#x = BatchNormalization()(x)
+x = Dense(128, activation = 'selu')(x)
+#x = BatchNormalization()(x)
+#x = Dropout(rate = 0.7)(x)
+x = Dense(128, activation = 'selu')(x)
 
 # main output for loss calculation #2
 main_pred = Dense(1, name = 'main_out')(x)
 
 # define inputs / outputs
-model = Model(inputs=[main_input, aux_input], outputs=[main_pred, gru_pred])
+model = Model(inputs=[main_input, aux_input], outputs=[main_pred])
 
 # weight losses and compile model
-model.compile(optimizer='adam', loss='mean_squared_error',
+model.compile(optimizer=Adam(lr = 0.0001), loss='mean_squared_error',
               loss_weights=[.8, .2])
 
-model.fit([X1, X2], [y, y], epochs=50, validation_split=0.5, batch_size = 256,
+model.fit([X1, X2], [y], epochs=50, validation_split=0.5, batch_size = 256,
 			 callbacks=[EarlyStopping(patience=8)])
 
 # clear graph

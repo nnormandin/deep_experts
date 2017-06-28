@@ -70,9 +70,17 @@ def make_instances(directory, min_loss = -0.1, save_before = 150,
 	else:
 		return instances
 	
+def clip_anomalies(y, iqr_multiple = 5):
+	q3 = np.percentile(y, 75)
+	iqr = q3 - np.percentile(y, 25)
+	limit = q3 + (iqr_multiple * iqr)
+	y[y>limit] = limit
+	#n_clipped = len(y[y == limit])
+	return y
+	
 
 def make_data(instances, tplus = 10, min_len = 50, max_len = 50,
-			  exclude_anom = True):
+			  exclude_anom = True, max_close = 1000):
 		
 	# remove positive return anomalies
 	if exclude_anom:
@@ -80,6 +88,7 @@ def make_data(instances, tplus = 10, min_len = 50, max_len = 50,
 	
 	# select based on n_before and n_after
 	instances = [x for x in instances if x.n_before >= min_len]
+	instances = [x for x in instances if x.close <= max_close]
 	X = [x.d_before.tail(max_len) for x in instances]
 	
 	y = np.asarray([x.label[tplus - 1] for x in instances])
@@ -93,7 +102,7 @@ def make_data(instances, tplus = 10, min_len = 50, max_len = 50,
 	return X_out, y
 	
 def make_data_aux(instances, tplus = 10, min_len = 50, max_len = 50,
-			  exclude_anom = True):
+			  exclude_anom = True, adjust_data = True):
 		
 	# remove positive return anomalies
 	if exclude_anom:
@@ -101,11 +110,20 @@ def make_data_aux(instances, tplus = 10, min_len = 50, max_len = 50,
 	
 	# select based on n_before and n_after
 	instances = [x for x in instances if x.n_before >= min_len]
+	instances = [x for x in instances if x.close <= 1000]
+
 	X = [x.d_before.tail(max_len) for x in instances]
 	
 	x_close = [x.close for x in instances]
 	x_ret = [x.ret for x in instances]
 
+	# scale return by 100 and remove those below -100
+	x_ret = np.array(x_ret)
+	x_ret *= 100
+	x_ret[x_ret <= -100] = -100
+	
+	# scale high close
+		
 	
 	y = np.asarray([x.label[tplus - 1] for x in instances])
 	y = (y - 1) * 100
@@ -119,13 +137,6 @@ def make_data_aux(instances, tplus = 10, min_len = 50, max_len = 50,
 	
 	return X_1, X_2, y
 
-def clip_anomalies(y, iqr_multiple = 5):
-	q3 = np.percentile(y, 75)
-	iqr = q3 - np.percentile(y, 25)
-	limit = q3 + (iqr_multiple * iqr)
-	y[y>limit] = limit
-	#n_clipped = len(y[y == limit])
-	return y
-	
+
 	
 	
