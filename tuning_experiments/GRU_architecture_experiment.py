@@ -19,10 +19,10 @@ X, y = util.make_data(instances, tplus = 20, min_len=100, max_len=100)
 y = util.clip_anomalies(y, iqr_multiple=10)
 
 validation_history = []
-mod_depths = [1, 2, 3]
-layer_widths = [64, 128, 256, 512]
-max_epochs = 100
-stopping_patience = 10
+mod_depths = [1, 2, 3, 4, 5]
+layer_widths = [16, 32]
+max_epochs = 50
+stopping_patience = 7
 
 for j in layer_widths:
 	for i in mod_depths:
@@ -42,6 +42,15 @@ for j in layer_widths:
 		if i == 3:
 			mod.add(GRU(j, return_sequences = True))
 			mod.add(GRU(j))
+		if i ==4:
+			mod.add(GRU(j, return_sequences = True))
+			mod.add(GRU(j, return_sequences = True))
+			mod.add(GRU(j))
+		if i ==5:
+			mod.add(GRU(j, return_sequences = True))
+			mod.add(GRU(j, return_sequences = True))
+			mod.add(GRU(j, return_sequences = True))
+			mod.add(GRU(j))
 
 		mod.add(Dense(1))
 		
@@ -50,7 +59,7 @@ for j in layer_widths:
 		              loss='mean_squared_error')
 		
 		# fit
-		mod_fitted = mod.fit(X, y, validation_split=0.4, shuffle=True, batch_size = 128,
+		mod_fitted = mod.fit(X, y, validation_split=0.4, shuffle=True,
 									epochs=max_epochs,
 									callbacks=[EarlyStopping(patience = stopping_patience)])
 		
