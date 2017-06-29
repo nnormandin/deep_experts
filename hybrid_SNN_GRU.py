@@ -2,6 +2,7 @@ from keras.models import Model
 import keras.backend as K
 from keras.layers import Input, Dense, BatchNormalization, Dropout
 from keras.layers import GRU, concatenate
+from keras.layers import Activation
 from keras.layers.noise import AlphaDropout
 from keras.optimizers import Adam
 import pickle
@@ -11,7 +12,7 @@ from keras.callbacks import EarlyStopping
 
 # pull from directory if not in memory
 if 'instances' not in dir():
-	instances = pickle.load(open('./instances24JUN.p', 'rb'))
+	instances = pickle.load(open('./data/instances25JUN.p', 'rb'))
 
 # use data making function to make inputs and output
 # X1: time series tensor (OHCLV x number of periods x batch size)
@@ -39,13 +40,16 @@ gru_pred = Dense(1, name = 'GRU_out')(gru_out)
 aux_input = Input(shape = X2.shape[1:], name = 'aux_in')
 x = concatenate([gru_out, aux_input])
 
-# fully connected FFN
-#x = Dropout(rate = 0.7)(x)
-#x = BatchNormalization()(x)
-x = Dense(128, activation = 'selu')(x)
-#x = BatchNormalization()(x)
-#x = Dropout(rate = 0.7)(x)
-x = Dense(128, activation = 'selu')(x)
+activation = 'selu'
+layer_size = 128
+n_layers = 3
+drop_rate = 0.1
+
+for n in range(n_layers):
+	x = Dense(layer_size)(x)
+	x = Activation(activation)(x)
+	x = AlphaDropout(rate = drop_rate)(x)
+	
 
 # main output for loss calculation #2
 main_pred = Dense(1, name = 'main_out')(x)
@@ -55,7 +59,7 @@ model = Model(inputs=[main_input, aux_input], outputs=[main_pred])
 
 # weight losses and compile model
 model.compile(optimizer=Adam(lr = 0.0001), loss='mean_squared_error',
-              loss_weights=[.8, .2])
+              loss_weights=[1.])
 
 model.fit([X1, X2], [y], epochs=50, validation_split=0.5, batch_size = 256,
 			 callbacks=[EarlyStopping(patience=8)])
