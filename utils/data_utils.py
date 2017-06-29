@@ -88,7 +88,7 @@ def make_data(instances, tplus = 10, min_len = 50, max_len = 50,
 	
 	# select based on n_before and n_after
 	instances = [x for x in instances if x.n_before >= min_len]
-	instances = [x for x in instances if x.close <= max_close]
+	instances = [x for x in instances if x.close <= 1000]
 	X = [x.d_before.tail(max_len) for x in instances]
 	
 	y = np.asarray([x.label[tplus - 1] for x in instances])
