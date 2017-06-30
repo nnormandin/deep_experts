@@ -42,8 +42,8 @@ x = concatenate([gru_out, aux_input])
 
 activation = 'selu'
 layer_size = 128
-n_layers = 3
-drop_rate = 0.1
+n_layers = 4
+drop_rate = 0.15
 
 for n in range(n_layers):
 	x = Dense(layer_size)(x)
@@ -58,7 +58,7 @@ main_pred = Dense(1, name = 'main_out')(x)
 model = Model(inputs=[main_input, aux_input], outputs=[main_pred])
 
 # weight losses and compile model
-model.compile(optimizer=Adam(lr = 0.0001), loss='mean_squared_error',
+model.compile(optimizer=Adam(lr = 0.001), loss='mean_squared_error',
               loss_weights=[1.])
 
 model.fit([X1, X2], [y], epochs=50, validation_split=0.5, batch_size = 256,
