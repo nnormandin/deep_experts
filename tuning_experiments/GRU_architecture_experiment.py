@@ -59,7 +59,7 @@ for j in layer_widths:
 		              loss='mean_squared_error')
 		
 		# fit
-		mod_fitted = mod.fit(X, y, validation_split=0.4, shuffle=True,
+		mod_fitted = mod.fit(X, y, validation_split=0.4, shuffle=True, batch_size = 256,
 									epochs=max_epochs,
 									callbacks=[EarlyStopping(patience = stopping_patience)])
 		
