@@ -28,10 +28,10 @@ y[y<-100] = -100
 main_input = Input(shape=X1.shape[1:], name = 'main_in')
 
 # stacked 128-neuron GRU output
-gru_out = GRU(128, return_sequences = True)(main_input)
-#gru_out = BatchNormalization()(gru_out)
-#gru_out = GRU(64, return_sequences = True)(gru_out)
-gru_out = GRU(128)(gru_out)
+gru_out = GRU(64, return_sequences = True)(main_input)
+gru_out = GRU(64, return_sequences = True)(gru_out)
+gru_out = GRU(64, return_sequences = True)(gru_out)
+gru_out = GRU(64)(gru_out)
 
 # GRU output for loss calculation #1
 gru_pred = Dense(1, name = 'GRU_out')(gru_out)
@@ -43,7 +43,7 @@ x = concatenate([gru_out, aux_input])
 activation = 'selu'
 layer_size = 128
 n_layers = 4
-drop_rate = 0.15
+drop_rate = 0.01
 
 for n in range(n_layers):
 	x = Dense(layer_size)(x)
@@ -58,7 +58,7 @@ main_pred = Dense(1, name = 'main_out')(x)
 model = Model(inputs=[main_input, aux_input], outputs=[main_pred])
 
 # weight losses and compile model
-model.compile(optimizer=Adam(lr = 0.001), loss='mean_squared_error',
+model.compile(optimizer=Adam(lr = 0.0001), loss='mean_squared_error',
               loss_weights=[1.])
 
 model.fit([X1, X2], [y], epochs=50, validation_split=0.5, batch_size = 256,
