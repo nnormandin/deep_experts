@@ -1,7 +1,7 @@
 import utils.data_utils as util
 import keras.backend as K
 from keras.models import Sequential
-from keras.layers import Dense #, BatchNormalization #, Dropout
+from keras.layers import Dense, Dropout
 from keras.layers import GRU
 from keras.layers.wrappers import Bidirectional
 from keras.callbacks import EarlyStopping
@@ -36,23 +36,35 @@ for j in layer_widths:
 		
 		if i == 1:
 			mod.add(Bidirectional(GRU(j, input_shape = X.shape[1:])))
+			mod.add(Dropout(0.5))
 		else:
 			mod.add(Bidirectional(GRU(j, return_sequences = True), input_shape = X.shape[1:]))
+			mod.add(Dropout(0.5))
 		
 		if i == 2:
 			mod.add(Bidirectional(GRU(j)))
+			mod.add(Dropout(0.5))
 		if i == 3:
 			mod.add(Bidirectional(GRU(j, return_sequences = True)))
+			mod.add(Dropout(0.5))
 			mod.add(Bidirectional(GRU(j)))
+			mod.add(Dropout(0.5))
 		if i ==4:
 			mod.add(Bidirectional(GRU(j, return_sequences = True)))
+			mod.add(Dropout(0.5))
 			mod.add(Bidirectional(GRU(j, return_sequences = True)))
+			mod.add(Dropout(0.5))
 			mod.add(Bidirectional(GRU(j)))
+			mod.add(Dropout(0.5))
 		if i ==5:
 			mod.add(Bidirectional(GRU(j, return_sequences = True)))
+			mod.add(Dropout(0.5))
 			mod.add(Bidirectional(GRU(j, return_sequences = True)))
+			mod.add(Dropout(0.5))
 			mod.add(Bidirectional(GRU(j, return_sequences = True)))
+			mod.add(Dropout(0.5))
 			mod.add(Bidirectional(GRU(j)))
+			mod.add(Dropout(0.5))
 
 		mod.add(Dense(1))
 		
@@ -69,3 +81,5 @@ for j in layer_widths:
 		
 		# reset graph
 		K.clear_session()
+
+min_val = [min(x) for x in validation_history]
