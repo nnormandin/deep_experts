@@ -57,7 +57,7 @@ main_pred = Dense(1, name = 'main_out')(x)
 model = Model(inputs=[main_input, aux_input], outputs=[main_pred, gru_pred])
 
 # weight losses and compile model
-model.compile(optimizer='adam', loss='mean_squared_error',
+model.compile(optimizer=TFOptimizer(YFOptimizer()), loss='mean_squared_error',
               loss_weights=[.8, .2])
 
 model.fit([X1, X2], [y, y], epochs=50, validation_split=0.5, batch_size = 256,

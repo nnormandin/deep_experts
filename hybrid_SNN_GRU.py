@@ -8,6 +8,8 @@ from keras.optimizers import Adam
 import pickle
 import utils.data_utils as util
 from keras.callbacks import EarlyStopping
+from keras.optimizers import TFOptimizer
+from utils.yellowfin import YFOptimizer
 
 
 # pull from directory if not in memory
@@ -58,7 +60,7 @@ main_pred = Dense(1, name = 'main_out')(x)
 model = Model(inputs=[main_input, aux_input], outputs=[main_pred, gru_pred])
 
 # weight losses and compile model
-model.compile(optimizer=Adam(lr = 0.001), loss='mean_squared_error',
+model.compile(optimizer=TFOptimizer(YFOptimizer()), loss='mean_squared_error',
               loss_weights=[.5, .5])
 
 model.fit([X1, X2], [y, y], epochs=50, validation_split=0.5, batch_size = 256,
