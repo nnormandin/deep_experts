@@ -3,6 +3,8 @@ import keras.backend as K
 from keras.models import Sequential
 from keras.layers import Dense #, BatchNormalization #, Dropout
 from keras.layers import LSTM
+from utils.yellowfin import YFOptimizer
+from keras.optimizers import TFOptimizer
 import pickle
 import os
 
@@ -27,20 +29,20 @@ y = [int(x>0) for x in y]
 # define graph
 mod = Sequential()
 mod.add(LSTM(64, return_sequences = True, input_shape = X.shape[1:]))
-mod.add(LSTM(64, return_sequences = True))
-mod.add(LSTM(64, return_sequences = True))
+#mod.add(LSTM(64, return_sequences = True))
+#mod.add(LSTM(64, return_sequences = True))
 mod.add(LSTM(64))
 mod.add(Dense(1, activation = 'sigmoid'))
 
 # compile
-#mod.compile(optimizer=TFOptimizer(YFOptimizer()),
-#              loss='binary_crossentropy', metrics = ['acc'])
-#
-mod.compile(optimizer='sgd',
+mod.compile(optimizer=TFOptimizer(YFOptimizer()),
               loss='binary_crossentropy', metrics = ['acc'])
 
+#mod.compile(optimizer='adam',
+#              loss='binary_crossentropy', metrics = ['acc'])
+
 # fit
-modfit = mod.fit(X, y, validation_split =0.3, shuffle =	True, batch_size=128,
+modfit = mod.fit(X, y, validation_split =0.2, shuffle =	True, batch_size=64,
 						epochs=30)
 
 
