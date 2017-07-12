@@ -19,8 +19,8 @@ X, y = util.make_data(instances, tplus = 20, min_len=100, max_len=100)
 y = util.clip_anomalies(y, iqr_multiple=10)
 
 validation_history = []
-mod_depths = [4]
-layer_widths = [64]
+mod_depths = [1, 2, 3, 4, 5]
+layer_widths = [16, 32]
 max_epochs = 50
 stopping_patience = 7
 
@@ -33,24 +33,24 @@ for j in layer_widths:
 		mod = Sequential()
 		
 		if i == 1:
-			mod.add(GRU(j, input_shape = X.shape[1:]))
+			mod.add(GRU(j, stateful = True, input_shape = X.shape[1:]))
 		else:
-			mod.add(GRU(j, return_sequences = True, input_shape = X.shape[1:]))
+			mod.add(GRU(j, stateful = True, return_sequences = True, input_shape = X.shape[1:]))
 		
 		if i == 2:
-			mod.add(GRU(j))
+			mod.add(GRU(j, stateful = True))
 		if i == 3:
-			mod.add(GRU(j, return_sequences = True))
-			mod.add(GRU(j))
+			mod.add(GRU(j, stateful = True, return_sequences = True))
+			mod.add(GRU(j, stateful = True))
 		if i ==4:
-			mod.add(GRU(j, return_sequences = True))
-			mod.add(GRU(j, return_sequences = True))
-			mod.add(GRU(j))
+			mod.add(GRU(j, stateful = True, return_sequences = True))
+			mod.add(GRU(j, stateful = True, return_sequences = True))
+			mod.add(GRU(j, stateful = True))
 		if i ==5:
-			mod.add(GRU(j, return_sequences = True))
-			mod.add(GRU(j, return_sequences = True))
-			mod.add(GRU(j, return_sequences = True))
-			mod.add(GRU(j))
+			mod.add(GRU(j, stateful = True, return_sequences = True))
+			mod.add(GRU(j, stateful = True, return_sequences = True))
+			mod.add(GRU(j, stateful = True, return_sequences = True))
+			mod.add(GRU(j, stateful = True))
 
 		mod.add(Dense(1))
 		
