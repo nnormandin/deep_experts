@@ -33,6 +33,16 @@ class Instance(object):
 				self.label.append(0)
 
 
+def add_sequence(df):
+	seq = np.arange(0, df.shape[0])
+	out = df.assign(seqs=seq)
+	return out
+
+def add_range(df):
+	hl_range = df['high'] - df['low']
+	out = df.assign(hl_range = hl_range)
+	return out
+	 
 def make_instances(directory, min_loss = -0.1, save_before = 150,
 					 save_after = 50, save = True, save_file = './instances.p'):
 	
@@ -80,7 +90,8 @@ def clip_anomalies(y, iqr_multiple = 5):
 	
 
 def make_data(instances, tplus = 10, min_len = 50, max_len = 50,
-			  exclude_anom = True, max_close = 1000):
+			  exclude_anom = True, max_close = 1000,
+			  sequences = True, ranges = True):
 		
 	# remove positive return anomalies
 	if exclude_anom:
@@ -90,6 +101,12 @@ def make_data(instances, tplus = 10, min_len = 50, max_len = 50,
 	instances = [x for x in instances if x.n_before >= min_len]
 	instances = [x for x in instances if x.close <= 1000]
 	X = [x.d_before.tail(max_len) for x in instances]
+	
+	if sequences:
+		X = list(map(add_sequence, X))
+	
+	if ranges:
+		X = list(map(add_range, X))
 	
 	y = np.asarray([x.label[tplus - 1] for x in instances])
 	y = (y - 1) * 100
@@ -102,7 +119,8 @@ def make_data(instances, tplus = 10, min_len = 50, max_len = 50,
 	return X_out, y
 	
 def make_data_aux(instances, tplus = 10, min_len = 50, max_len = 50,
-			  exclude_anom = True, adjust_data = True):
+			  exclude_anom = True, adjust_data = True, sequences = True,
+			  ranges = True):
 		
 	# remove positive return anomalies
 	if exclude_anom:
@@ -113,6 +131,12 @@ def make_data_aux(instances, tplus = 10, min_len = 50, max_len = 50,
 	instances = [x for x in instances if x.close <= 1000]
 
 	X = [x.d_before.tail(max_len) for x in instances]
+	
+	if sequences:
+		X = list(map(add_sequence, X))
+	
+	if ranges:
+		X = list(map(add_range, X))
 	
 	x_close = [x.close for x in instances]
 	x_ret = [x.ret for x in instances]
