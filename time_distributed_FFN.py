@@ -1,8 +1,8 @@
 import utils.data_utils as util
 import keras.backend as K
 from keras.models import Sequential
-from keras.layers import Dense #, BatchNormalization #, Dropout
-from keras.layers import LSTM
+from keras.layers import Dense, Flatten #, BatchNormalization #, Dropout
+from keras.layers.wrappers import TimeDistributed
 from utils.yellowfin import YFOptimizer
 from keras.optimizers import TFOptimizer
 import pickle
@@ -24,22 +24,23 @@ X, y = util.make_data(instances, tplus = 20, min_len=100, max_len=100)
 # clip positive anomalies down to IQRx10
 y = util.clip_anomalies(y, iqr_multiple=10)
 
-y = [int(x>0) for x in y]
+#y = [int(x>0) for x in y]
 
 # define graph
 mod = Sequential()
-mod.add(LSTM(64, return_sequences = True, input_shape = X.shape[1:]))
-#mod.add(LSTM(64, return_sequences = True))
-#mod.add(LSTM(64, return_sequences = True))
-mod.add(LSTM(64))
-mod.add(Dense(1, activation = 'softmax'))
+mod.add(TimeDistributed(Dense(16, activation = 'relu'),
+						  input_shape=(X.shape[1:])))
+mod.add(Flatten())
+#mod.add(Dense(256, activation = 'relu'))
+
+mod.add(Dense(1))
 
 # compile
 #mod.compile(optimizer=TFOptimizer(YFOptimizer()),
 #              loss='binary_crossentropy', metrics = ['acc'])
 
 mod.compile(optimizer='adam',
-              loss='binary_crossentropy', metrics = ['acc'])
+              loss='mean_squared_error')
 
 # fit
 modfit = mod.fit(X, y, validation_split =0.2, shuffle =	True, batch_size=64,
