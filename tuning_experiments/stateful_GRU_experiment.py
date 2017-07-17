@@ -33,9 +33,9 @@ for j in layer_widths:
 		mod = Sequential()
 		
 		if i == 1:
-			mod.add(GRU(j, stateful = True, input_shape = X.shape[1:]))
+			mod.add(GRU(j, stateful = True, input_shape = (256, 100, 7)))
 		else:
-			mod.add(GRU(j, stateful = True, return_sequences = True, input_shape = X.shape[1:]))
+			mod.add(GRU(j, stateful = True, return_sequences = True, input_shape = (256, 100, 7)))
 		
 		if i == 2:
 			mod.add(GRU(j, stateful = True))
