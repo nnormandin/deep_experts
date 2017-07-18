@@ -10,10 +10,16 @@ import pickle
 
 
 if 'instances' not in dir():
-	instances = pickle.load(open('./instances24JUN.p', 'rb'))
+	instances = pickle.load(open('../data/instances25JUN.p', 'rb'))
 
 # create x/y at tplus of 20
 X, y = util.make_data(instances, tplus = 20, min_len=100, max_len=100)
+
+# make it a multiple of batch size for stateful network
+batch_size = 256
+n_x = int(X.shape[0] / batch_size) * batch_size
+X = X[:n_x,:,:]
+y = y[:n_x]
 
 # clip positive anomalies down to IQRx10
 y = util.clip_anomalies(y, iqr_multiple=10)
@@ -33,9 +39,10 @@ for j in layer_widths:
 		mod = Sequential()
 		
 		if i == 1:
-			mod.add(GRU(j, stateful = True, input_shape = (256, 100, 7)))
+			mod.add(GRU(j, stateful = True, batch_input_shape = (256, 100, 7)))
 		else:
-			mod.add(GRU(j, stateful = True, return_sequences = True, input_shape = (256, 100, 7)))
+			mod.add(GRU(j, stateful = True, return_sequences = True,
+			   batch_input_shape = (256, 100, 7)))
 		
 		if i == 2:
 			mod.add(GRU(j, stateful = True))
